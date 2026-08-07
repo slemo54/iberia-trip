@@ -36,3 +36,17 @@ Repo: https://github.com/slemo54/iberia-trip
 2. **Sezione "Info"** (dal menu) con volo andata/ritorno in card grandi, numeri di emergenza (112, consolati IT, taxi), prezzi tipici agosto.
 3. **Riorganizzazione nav**: 6 tab principali (Giorno, Alloggi, Surf, Mappa, Link, Traduttore) + bottom sheet "Altro" per strumenti secondari (Info, Check, Preferiti, Backup).
 4. Bonus fix: padding-bottom aumentato (140px) per evitare sovrapposizione tabs/contenuto.
+
+## v1.5 (deploy 6) — PWA + condivisione
+1. **PWA installabile** via `vite-plugin-pwa`: manifest con 3 icone (SVG + 192/512 PNG), service worker con precache 583 KiB, runtime caching per Open-Meteo (6h) e CartoDB tiles (30gg). Da Safari/Chrome mobile appare "Aggiungi a Home".
+2. **Open Graph meta** (og:title/description/image/twitter:card) + cover image custom SVG 1200×630 (`og-cover.svg`) per anteprima social quando condivido via WhatsApp/Twitter/LinkedIn.
+3. **Skeleton loader** per il lazy-load della mappa (shimmer animation 1.5s) al posto del semplice testo.
+4. Bonus: icone PNG generate via script Node + `sharp` (`scripts/generate-icons.mjs`).
+
+## Verifiche finali
+- ✅ 6 deploy su Vercel tutti "Ready"
+- ✅ HTTP 200 su /, /manifest.webmanifest, /sw.js
+- ✅ Service worker attivo nel browser (1 registrazione)
+- ✅ Mappa Leaflet visibile con pin + polyline + ETA drive
+- ✅ Bundle split: main 364 kB / 117 kB gzip, mappa lazy 157 kB / 46 kB gzip
+- ✅ Tutto committato su main: https://github.com/slemo54/iberia-trip

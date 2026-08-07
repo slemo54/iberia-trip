@@ -5,6 +5,7 @@ import {
   MapPin, Beer, Waves, Star, Phone, Navigation, Heart, Globe,
   ChevronRight, Sun, Sunrise, Sunset, Cloud, Wind, Droplets,
   Sparkles, Calendar, Share2, ListChecks, Map as MapIcon, Save, Info as InfoIcon, Languages,
+  WifiOff, Download, X,
 } from "lucide-react";
 import { trip, quickLinks } from "./data/itinerary";
 import { LangProvider, useLang } from "./i18n";
@@ -17,6 +18,7 @@ import Checklist from "./Checklist";
 import Backup from "./Backup";
 import Translator from "./Translator";
 import Info from "./Info";
+import { downloadIcs } from "./ical";
 
 // Lazy-load the map to keep initial bundle small
 const MapView = lazy(() => import("./MapView"));
@@ -388,7 +390,7 @@ function Tabs({ view, setView }) {
   );
 }
 
-function MenuSheet({ open, onClose, goTo }) {
+function MenuSheet({ open, onClose, goTo, exportCalendar }) {
   if (!open) return null;
   return (
     <motion.div
@@ -416,7 +418,85 @@ function MenuSheet({ open, onClose, goTo }) {
         <button className="sheet-item" onClick={() => { goTo("backup"); onClose(); }}>
           <Save size={18} /> Backup & ripristino
         </button>
+        <button className="sheet-item" onClick={() => { exportCalendar(); onClose(); }}>
+          <Calendar size={18} /> Esporta in Calendar (.ics)
+        </button>
       </motion.div>
+    </motion.div>
+  );
+}
+
+function OfflineBanner() {
+  const [online, setOnline] = useState(typeof navigator !== "undefined" ? navigator.onLine : true);
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    const onOnline = () => { setOnline(true); setShow(false); };
+    const onOffline = () => { setOnline(false); setShow(true); };
+    window.addEventListener("online", onOnline);
+    window.addEventListener("offline", onOffline);
+    return () => {
+      window.removeEventListener("online", onOnline);
+      window.removeEventListener("offline", onOffline);
+    };
+  }, []);
+
+  if (!show) return null;
+  return (
+    <motion.div
+      className="offline-banner"
+      initial={{ y: -50, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      exit={{ y: -50, opacity: 0 }}
+    >
+      <WifiOff size={14} />
+      <span>Offline — i dati salvati restano disponibili</span>
+      <button onClick={() => setShow(false)} aria-label="Chiudi">
+        <X size={14} />
+      </button>
+    </motion.div>
+  );
+}
+
+function InstallPrompt() {
+  const [evt, setEvt] = useState(null);
+  const [dismissed, setDismissed] = useState(() => sessionStorage.getItem("iberia.install.dismissed") === "1");
+
+  useEffect(() => {
+    const onPrompt = (e) => {
+      e.preventDefault();
+      setEvt(e);
+    };
+    window.addEventListener("beforeinstallprompt", onPrompt);
+    return () => window.removeEventListener("beforeinstallprompt", onPrompt);
+  }, []);
+
+  if (!evt || dismissed) return null;
+
+  const install = async () => {
+    evt.prompt();
+    const choice = await evt.userChoice;
+    if (choice.outcome === "accepted") setEvt(null);
+    setDismissed(true);
+    sessionStorage.setItem("iberia.install.dismissed", "1");
+  };
+
+  return (
+    <motion.div
+      className="install-prompt"
+      initial={{ y: 80, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      exit={{ y: 80, opacity: 0 }}
+    >
+      <Download size={16} />
+      <div className="ip-text">
+        <strong>Installa l'app</strong>
+        <span>Accesso rapido dalla home, anche offline</span>
+      </div>
+      <button className="ip-btn" onClick={install}>Installa</button>
+      <button className="ip-close" onClick={() => { setDismissed(true); sessionStorage.setItem("iberia.install.dismissed", "1"); }}>
+        <X size={14} />
+      </button>
     </motion.div>
   );
 }
@@ -518,6 +598,10 @@ function App() {
           <div className="bg-gradient" aria-hidden />
           <div className="bg-grid" aria-hidden />
 
+          <AnimatePresence>
+            <OfflineBanner key="offline" />
+          </AnimatePresence>
+
           <TopBar />
           <TripHeader />
 
@@ -561,8 +645,13 @@ function App() {
                 open={menuOpen}
                 onClose={() => setMenuOpen(false)}
                 goTo={setView}
+                exportCalendar={() => downloadIcs(trip.days)}
               />
             )}
+          </AnimatePresence>
+
+          <AnimatePresence>
+            <InstallPrompt key="install" />
           </AnimatePresence>
         </div>
       </FavProvider>
