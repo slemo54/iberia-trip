@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plane, Car, Umbrella, Moon, Utensils, Footprints, Camera,
   MapPin, Beer, Waves, Star, Phone, Navigation, Heart, Globe,
   ChevronRight, Sun, Sunrise, Sunset, Cloud, Wind, Droplets,
-  Sparkles, Calendar, Share2, ListChecks,
+  Sparkles, Calendar, Share2, ListChecks, Map as MapIcon, Save,
 } from "lucide-react";
 import { trip, quickLinks } from "./data/itinerary";
 import { LangProvider, useLang } from "./i18n";
@@ -14,6 +14,10 @@ import { sunTimes, formatTime } from "./sun";
 import { fetchWeather, describeCode } from "./weather";
 import SurfView from "./Surf";
 import Checklist from "./Checklist";
+import Backup from "./Backup";
+
+// Lazy-load the map to keep initial bundle small
+const MapView = lazy(() => import("./MapView"));
 import "./app.css";
 
 const iconFor = (type) => {
@@ -172,18 +176,28 @@ function TopBar() {
         <Sun size={18} className="brand-icon" />
         <span>{trip.meta.title}</span>
       </div>
-      <div className="lang-switch" role="tablist" aria-label={t("language")}>
-        {langs.map((l) => (
-          <button
-            key={l}
-            role="tab"
-            aria-selected={lang === l}
-            className={lang === l ? "on" : ""}
-            onClick={() => setLang(l)}
-          >
-            {l.toUpperCase()}
-          </button>
-        ))}
+      <div className="topbar-right">
+        <button
+          className="icon-btn"
+          onClick={() => window.dispatchEvent(new CustomEvent("iberia:open-menu"))}
+          aria-label="Altro"
+          title="Checklist & backup"
+        >
+          <ListChecks size={16} />
+        </button>
+        <div className="lang-switch" role="tablist" aria-label={t("language")}>
+          {langs.map((l) => (
+            <button
+              key={l}
+              role="tab"
+              aria-selected={lang === l}
+              className={lang === l ? "on" : ""}
+              onClick={() => setLang(l)}
+            >
+              {l.toUpperCase()}
+            </button>
+          ))}
+        </div>
       </div>
     </header>
   );
@@ -359,16 +373,43 @@ function Tabs({ view, setView }) {
       <button role="tab" aria-selected={view === "surf"} className={view === "surf" ? "on" : ""} onClick={() => setView("surf")}>
         <Waves size={14} /> Surf
       </button>
+      <button role="tab" aria-selected={view === "map"} className={view === "map" ? "on" : ""} onClick={() => setView("map")}>
+        <MapIcon size={14} /> Mappa
+      </button>
       <button role="tab" aria-selected={view === "links"} className={view === "links" ? "on" : ""} onClick={() => setView("links")}>
         <span className="emoji" aria-hidden>⚡</span> {t("quickLinks")}
-      </button>
-      <button role="tab" aria-selected={view === "check"} className={view === "check" ? "on" : ""} onClick={() => setView("check")}>
-        <ListChecks size={14} /> Check
       </button>
       <button role="tab" aria-selected={view === "favs"} className={view === "favs" ? "on" : ""} onClick={() => setView("favs")}>
         <Heart size={14} /> {t("favorites")}
       </button>
     </nav>
+  );
+}
+
+function MenuSheet({ open, onClose, goTo }) {
+  if (!open) return null;
+  return (
+    <motion.div
+      className="sheet-backdrop"
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      onClick={onClose}
+    >
+      <motion.div
+        className="sheet"
+        initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
+        transition={{ type: "spring", damping: 24, stiffness: 240 }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="sheet-handle" />
+        <h3>Strumenti</h3>
+        <button className="sheet-item" onClick={() => { goTo("check"); onClose(); }}>
+          <ListChecks size={18} /> Checklist pre-partenza
+        </button>
+        <button className="sheet-item" onClick={() => { goTo("backup"); onClose(); }}>
+          <Save size={18} /> Backup & ripristino
+        </button>
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -454,6 +495,13 @@ function Favs() {
 
 function App() {
   const [view, setView] = useState("timeline");
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const open = () => setMenuOpen(true);
+    window.addEventListener("iberia:open-menu", open);
+    return () => window.removeEventListener("iberia:open-menu", open);
+  }, []);
 
   return (
     <LangProvider>
@@ -477,14 +525,30 @@ function App() {
                 {view === "timeline" && <Timeline />}
                 {view === "stays" && <Stays />}
                 {view === "surf" && <SurfView />}
+                {view === "map" && (
+                  <Suspense fallback={<div className="map-loading">Caricamento mappa…</div>}>
+                    <MapView />
+                  </Suspense>
+                )}
                 {view === "links" && <QuickLinks />}
                 {view === "check" && <Checklist />}
+                {view === "backup" && <Backup />}
                 {view === "favs" && <Favs />}
               </motion.div>
             </AnimatePresence>
           </main>
 
           <Tabs view={view} setView={setView} />
+
+          <AnimatePresence>
+            {menuOpen && (
+              <MenuSheet
+                open={menuOpen}
+                onClose={() => setMenuOpen(false)}
+                goTo={setView}
+              />
+            )}
+          </AnimatePresence>
         </div>
       </FavProvider>
     </LangProvider>
