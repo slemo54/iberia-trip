@@ -4,7 +4,7 @@ import {
   Plane, Car, Umbrella, Moon, Utensils, Footprints, Camera,
   MapPin, Beer, Waves, Star, Phone, Navigation, Heart, Globe,
   ChevronRight, Sun, Sunrise, Sunset, Cloud, Wind, Droplets,
-  Sparkles, Calendar,
+  Sparkles, Calendar, Share2, ListChecks,
 } from "lucide-react";
 import { trip, quickLinks } from "./data/itinerary";
 import { LangProvider, useLang } from "./i18n";
@@ -12,6 +12,8 @@ import { FavProvider, useFav } from "./favs";
 import { tripProgress } from "./trip";
 import { sunTimes, formatTime } from "./sun";
 import { fetchWeather, describeCode } from "./weather";
+import SurfView from "./Surf";
+import Checklist from "./Checklist";
 import "./app.css";
 
 const iconFor = (type) => {
@@ -193,6 +195,20 @@ function DayCard({ day, idx, isToday }) {
   const fav = has(day.id);
   const meta = regionMeta[day.region] || { color: "#a78bfa", label: "", city: "" };
 
+  const share = async () => {
+    const txt = `${day.weekday} ${day.date.slice(8)} Ago · ${day.title}\n${day.summary}\n\n` +
+      day.blocks.map((b) => `• ${b.text}`).join("\n");
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: `Iberia · ${day.title}`, text: txt });
+      } catch {} // user cancel
+    } else if (navigator.clipboard) {
+      await navigator.clipboard.writeText(txt);
+      // eslint-disable-next-line no-alert
+      alert("Copiato negli appunti");
+    }
+  };
+
   return (
     <motion.article
       layout
@@ -211,13 +227,23 @@ function DayCard({ day, idx, isToday }) {
           <h3>{day.title}</h3>
           <p>{day.summary}</p>
         </div>
-        <button
-          className={`fav-btn ${fav ? "on" : ""}`}
-          onClick={() => toggle(day.id)}
-          aria-label={fav ? t("removeFav") : t("addFav")}
-        >
-          <Heart size={18} fill={fav ? "currentColor" : "none"} />
-        </button>
+        <div className="day-actions">
+          <button
+            className="share-btn"
+            onClick={share}
+            aria-label="Condividi giorno"
+            title="Condividi"
+          >
+            <Share2 size={15} />
+          </button>
+          <button
+            className={`fav-btn ${fav ? "on" : ""}`}
+            onClick={() => toggle(day.id)}
+            aria-label={fav ? t("removeFav") : t("addFav")}
+          >
+            <Heart size={18} fill={fav ? "currentColor" : "none"} />
+          </button>
+        </div>
       </div>
 
       <div className="meta-row">
@@ -323,15 +349,21 @@ function QuickLinks() {
 function Tabs({ view, setView }) {
   const { t } = useLang();
   return (
-    <nav className="tabs" role="tablist">
+    <nav className="tabs tabs-6" role="tablist">
       <button role="tab" aria-selected={view === "timeline"} className={view === "timeline" ? "on" : ""} onClick={() => setView("timeline")}>
         <span className="emoji" aria-hidden>🗓️</span> {t("day")}
       </button>
       <button role="tab" aria-selected={view === "stays"} className={view === "stays" ? "on" : ""} onClick={() => setView("stays")}>
         <span className="emoji" aria-hidden>🛏️</span> {t("address")}
       </button>
+      <button role="tab" aria-selected={view === "surf"} className={view === "surf" ? "on" : ""} onClick={() => setView("surf")}>
+        <Waves size={14} /> Surf
+      </button>
       <button role="tab" aria-selected={view === "links"} className={view === "links" ? "on" : ""} onClick={() => setView("links")}>
         <span className="emoji" aria-hidden>⚡</span> {t("quickLinks")}
+      </button>
+      <button role="tab" aria-selected={view === "check"} className={view === "check" ? "on" : ""} onClick={() => setView("check")}>
+        <ListChecks size={14} /> Check
       </button>
       <button role="tab" aria-selected={view === "favs"} className={view === "favs" ? "on" : ""} onClick={() => setView("favs")}>
         <Heart size={14} /> {t("favorites")}
@@ -444,7 +476,9 @@ function App() {
               >
                 {view === "timeline" && <Timeline />}
                 {view === "stays" && <Stays />}
+                {view === "surf" && <SurfView />}
                 {view === "links" && <QuickLinks />}
+                {view === "check" && <Checklist />}
                 {view === "favs" && <Favs />}
               </motion.div>
             </AnimatePresence>
