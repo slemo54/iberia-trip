@@ -251,7 +251,6 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 
 .region-tag {
   display: inline-block;
-  margin: 10px 0 12px;
   padding: 3px 10px;
   font-size: 10.5px;
   font-weight: 700;
@@ -259,6 +258,93 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   letter-spacing: 1px;
   border: 1px solid;
   border-radius: 999px;
+}
+
+.meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 0 12px;
+}
+
+.sun-strip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.sun-strip span { display: inline-flex; align-items: center; gap: 3px; }
+
+.weather-strip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.weather-strip .w-icon { font-size: 13px; line-height: 1; }
+.weather-strip .w-pop {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: #93c5fd;
+  margin-left: 2px;
+}
+
+.trip-header {
+  margin: 6px 0 14px;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, rgba(124,58,237,0.18), rgba(37,99,235,0.18));
+  border: 1px solid rgba(124, 58, 237, 0.3);
+  border-radius: 14px;
+  backdrop-filter: blur(12px);
+}
+.trip-header .th-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.trip-header .th-emoji { font-size: 20px; }
+.trip-header .th-title {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+.trip-header .th-sub {
+  font-size: 11.5px;
+  color: var(--muted);
+  margin-top: 1px;
+}
+.trip-header .th-bar {
+  margin-top: 10px;
+  height: 4px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.trip-header .th-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--violet), var(--blue), var(--cyan));
+  border-radius: 999px;
+  transition: width 0.6s ease;
+}
+.trip-header.before, .trip-header.after {
+  background: var(--glass);
+  border-color: var(--line);
 }
 
 .blocks {

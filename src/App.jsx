@@ -1,28 +1,17 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Plane,
-  Car,
-  Umbrella,
-  Moon,
-  Utensils,
-  Footprints,
-  Camera,
-  MapPin,
-  Beer,
-  Waves,
-  Star,
-  Phone,
-  Navigation,
-  Heart,
-  Globe,
-  ChevronRight,
-  ChevronLeft,
-  Sun,
+  Plane, Car, Umbrella, Moon, Utensils, Footprints, Camera,
+  MapPin, Beer, Waves, Star, Phone, Navigation, Heart, Globe,
+  ChevronRight, Sun, Sunrise, Sunset, Cloud, Wind, Droplets,
+  Sparkles, Calendar,
 } from "lucide-react";
 import { trip, quickLinks } from "./data/itinerary";
 import { LangProvider, useLang } from "./i18n";
 import { FavProvider, useFav } from "./favs";
+import { tripProgress } from "./trip";
+import { sunTimes, formatTime } from "./sun";
+import { fetchWeather, describeCode } from "./weather";
 import "./app.css";
 
 const iconFor = (type) => {
@@ -51,18 +40,126 @@ const iconFor = (type) => {
 };
 
 const regionMeta = {
-  alvor: { color: "#7dd3fc", label: "Algarve" },
-  lisbona: { color: "#a78bfa", label: "Lisbona" },
-  siviglia: { color: "#fb923c", label: "Siviglia" },
+  alvor: { color: "#7dd3fc", label: "Algarve", city: "Alvor" },
+  lisbona: { color: "#a78bfa", label: "Lisbona", city: "Lisbona" },
+  siviglia: { color: "#fb923c", label: "Siviglia", city: "Siviglia" },
 };
 
-const todayIdx = () => {
-  const now = new Date();
-  const start = new Date(trip.meta.start);
-  const diff = Math.floor((now - start) / (1000 * 60 * 60 * 24));
-  if (diff < 0 || diff > trip.days.length - 1) return null;
-  return diff;
+const coordsByRegion = {
+  alvor: { lat: 37.1296, lng: -8.5917 },
+  lisbona: { lat: 38.7115, lng: -9.1310 },
+  siviglia: { lat: 37.3929, lng: -5.9936 },
 };
+
+function useWeather(region) {
+  const [w, setW] = useState(null);
+  useEffect(() => {
+    const c = coordsByRegion[region];
+    if (!c) return;
+    let cancel = false;
+    fetchWeather(c.lat, c.lng, trip.meta.start, trip.meta.end).then((d) => {
+      if (!cancel) setW(d);
+    });
+    return () => { cancel = true; };
+  }, [region]);
+  return w;
+}
+
+function WeatherStrip({ region, date }) {
+  const w = useWeather(region);
+  if (!w) return null;
+  const day = w.days.find((d) => d.date === date);
+  if (!day) return null;
+  const d = describeCode(day.code);
+  return (
+    <div className="weather-strip" title={`${d.label} · vento ${Math.round(day.wind)} km/h`}>
+      <span className="w-icon">{d.icon}</span>
+      <span className="w-temp">{Math.round(day.tmax)}°/{Math.round(day.tmin)}°</span>
+      {day.pop > 20 && (
+        <span className="w-pop" title={`Prob. pioggia ${day.pop}%`}>
+          <Droplets size={11} /> {day.pop}%
+        </span>
+      )}
+    </div>
+  );
+}
+
+function SunStrip({ region, date }) {
+  const [sun, setSun] = useState(null);
+  useEffect(() => {
+    const c = coordsByRegion[region];
+    if (!c) return;
+    setSun(sunTimes(new Date(date), c.lat, c.lng));
+  }, [region, date]);
+  if (!sun) return null;
+  return (
+    <div className="sun-strip">
+      <span title="Alba"><Sunrise size={12} /> {formatTime(sun.sunrise)}</span>
+      <span title="Tramonto"><Sunset size={12} /> {formatTime(sun.sunset)}</span>
+    </div>
+  );
+}
+
+function TripHeader() {
+  const { t } = useLang();
+  const [p, setP] = useState(() => tripProgress());
+  useEffect(() => {
+    const id = setInterval(() => setP(tripProgress()), 60_000);
+    return () => clearInterval(id);
+  }, []);
+
+  if (p.phase === "before") {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+        className="trip-header before"
+      >
+        <div className="th-main">
+          <span className="th-emoji">✈️</span>
+          <div>
+            <div className="th-title">{trip.meta.title}</div>
+            <div className="th-sub">
+              {p.daysUntil === 1 ? "Manca 1 giorno" : `Mancano ${p.daysUntil} giorni`}
+            </div>
+          </div>
+        </div>
+        <div className="th-bar"><div className="th-fill" style={{ width: "0%" }} /></div>
+      </motion.div>
+    );
+  }
+  if (p.phase === "after") {
+    return (
+      <div className="trip-header after">
+        <div className="th-main">
+          <span className="th-emoji">🌅</span>
+          <div>
+            <div className="th-title">Viaggio concluso</div>
+            <div className="th-sub">Da {p.daysSince} {p.daysSince === 1 ? "giorno" : "giorni"}</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  const day = trip.days[p.currentDayIdx];
+  return (
+    <motion.div
+      key={day.id}
+      initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}
+      className="trip-header during"
+    >
+      <div className="th-main">
+        <span className="th-emoji">📍</span>
+        <div>
+          <div className="th-title">Giorno {p.currentDayIdx + 1} di {trip.days.length}</div>
+          <div className="th-sub">{day.title}</div>
+        </div>
+      </div>
+      <div className="th-bar">
+        <div className="th-fill" style={{ width: `${Math.round(p.progress * 100)}%` }} />
+      </div>
+    </motion.div>
+  );
+}
 
 function TopBar() {
   const { lang, setLang, t } = useLang();
@@ -94,7 +191,7 @@ function DayCard({ day, idx, isToday }) {
   const { t } = useLang();
   const { has, toggle } = useFav();
   const fav = has(day.id);
-  const meta = regionMeta[day.region] || { color: "#a78bfa", label: "" };
+  const meta = regionMeta[day.region] || { color: "#a78bfa", label: "", city: "" };
 
   return (
     <motion.article
@@ -123,8 +220,12 @@ function DayCard({ day, idx, isToday }) {
         </button>
       </div>
 
-      <div className="region-tag" style={{ background: `${meta.color}22`, color: meta.color, borderColor: `${meta.color}55` }}>
-        {meta.label}
+      <div className="meta-row">
+        <div className="region-tag" style={{ background: `${meta.color}22`, color: meta.color, borderColor: `${meta.color}55` }}>
+          {meta.label}
+        </div>
+        <SunStrip region={day.region} date={day.date} />
+        <WeatherStrip region={day.region} date={day.date} />
       </div>
 
       <ul className="blocks">
@@ -242,12 +343,13 @@ function Tabs({ view, setView }) {
 function Timeline() {
   const { t } = useLang();
   const { favs } = useFav();
-  const [filter, setFilter] = useState("all"); // all | today | favs
-  const idx = todayIdx();
+  const [filter, setFilter] = useState("all");
+  const p = tripProgress();
+  const todayId = p.phase === "during" ? trip.days[p.currentDayIdx].id : null;
 
   const days = trip.days.filter((d) => {
     if (filter === "favs") return favs.has(d.id);
-    if (filter === "today") return idx !== null && trip.days[idx].id === d.id;
+    if (filter === "today") return todayId === d.id;
     return true;
   });
 
@@ -255,8 +357,10 @@ function Timeline() {
     <div className="timeline">
       <div className="filter-row">
         <button className={filter === "all" ? "on" : ""} onClick={() => setFilter("all")}>Tutto</button>
-        {idx !== null && (
-          <button className={filter === "today" ? "on" : ""} onClick={() => setFilter("today")}>{t("today")}</button>
+        {todayId && (
+          <button className={filter === "today" ? "on" : ""} onClick={() => setFilter("today")}>
+            <Sparkles size={12} /> {t("today")}
+          </button>
         )}
         <button className={filter === "favs" ? "on" : ""} onClick={() => setFilter("favs")}>
           <Heart size={12} /> {t("favorites")}
@@ -265,7 +369,7 @@ function Timeline() {
 
       <AnimatePresence mode="popLayout">
         {days.map((d, i) => (
-          <DayCard key={d.id} day={d} idx={i} isToday={idx !== null && trip.days[idx].id === d.id} />
+          <DayCard key={d.id} day={d} idx={i} isToday={todayId === d.id} />
         ))}
       </AnimatePresence>
 
@@ -277,16 +381,12 @@ function Timeline() {
 }
 
 function Stays() {
-  const idx = todayIdx();
-  // Heuristic: current stay = first stay whose date range includes today
   const now = new Date();
   const current = trip.stays.find((s) => {
     const m = s.dates.match(/(\d+).+(\d+)/);
     if (!m) return false;
-    const startDay = parseInt(m[1]);
-    const endDay = parseInt(m[2]);
-    const startDate = new Date(`2026-08-${String(startDay).padStart(2, "0")}`);
-    const endDate = new Date(`2026-08-${String(endDay).padStart(2, "0")}T23:59`);
+    const startDate = new Date(`2026-08-${String(parseInt(m[1])).padStart(2, "0")}`);
+    const endDate = new Date(`2026-08-${String(parseInt(m[2])).padStart(2, "0")}T23:59`);
     return now >= startDate && now <= endDate;
   });
 
@@ -331,6 +431,7 @@ function App() {
           <div className="bg-grid" aria-hidden />
 
           <TopBar />
+          <TripHeader />
 
           <main className="main">
             <AnimatePresence mode="wait">
