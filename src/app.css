@@ -39,7 +39,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   min-height: 100dvh;
   max-width: 720px;
   margin: 0 auto;
-  padding: 0 16px 110px;
+  padding: 0 16px 140px;
   overflow-x: hidden;
 }
 
@@ -1082,7 +1082,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 }
 
 @media (min-width: 480px) {
-  .app { padding: 0 24px 110px; }
+  .app { padding: 0 24px 140px; }
   .day-title h3 { font-size: 17px; }
   .day-title p { font-size: 13px; }
   .block { font-size: 13.5px; }
