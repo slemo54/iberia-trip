@@ -4,7 +4,7 @@ import {
   Plane, Car, Umbrella, Moon, Utensils, Footprints, Camera,
   MapPin, Beer, Waves, Star, Phone, Navigation, Heart, Globe,
   ChevronRight, Sun, Sunrise, Sunset, Cloud, Wind, Droplets,
-  Sparkles, Calendar, Share2, ListChecks, Map as MapIcon, Save,
+  Sparkles, Calendar, Share2, ListChecks, Map as MapIcon, Save, Info as InfoIcon, Languages,
 } from "lucide-react";
 import { trip, quickLinks } from "./data/itinerary";
 import { LangProvider, useLang } from "./i18n";
@@ -15,6 +15,8 @@ import { fetchWeather, describeCode } from "./weather";
 import SurfView from "./Surf";
 import Checklist from "./Checklist";
 import Backup from "./Backup";
+import Translator from "./Translator";
+import Info from "./Info";
 
 // Lazy-load the map to keep initial bundle small
 const MapView = lazy(() => import("./MapView"));
@@ -379,8 +381,8 @@ function Tabs({ view, setView }) {
       <button role="tab" aria-selected={view === "links"} className={view === "links" ? "on" : ""} onClick={() => setView("links")}>
         <span className="emoji" aria-hidden>⚡</span> {t("quickLinks")}
       </button>
-      <button role="tab" aria-selected={view === "favs"} className={view === "favs" ? "on" : ""} onClick={() => setView("favs")}>
-        <Heart size={14} /> {t("favorites")}
+      <button role="tab" aria-selected={view === "translator"} className={view === "translator" ? "on" : ""} onClick={() => setView("translator")}>
+        <Languages size={14} /> Traduttore
       </button>
     </nav>
   );
@@ -402,8 +404,14 @@ function MenuSheet({ open, onClose, goTo }) {
       >
         <div className="sheet-handle" />
         <h3>Strumenti</h3>
+        <button className="sheet-item" onClick={() => { goTo("info"); onClose(); }}>
+          <InfoIcon size={18} /> Info volo, emergenze, prezzi
+        </button>
         <button className="sheet-item" onClick={() => { goTo("check"); onClose(); }}>
           <ListChecks size={18} /> Checklist pre-partenza
+        </button>
+        <button className="sheet-item" onClick={() => { goTo("favs"); onClose(); }}>
+          <Heart size={18} /> Giorni preferiti
         </button>
         <button className="sheet-item" onClick={() => { goTo("backup"); onClose(); }}>
           <Save size={18} /> Backup & ripristino
@@ -531,6 +539,8 @@ function App() {
                   </Suspense>
                 )}
                 {view === "links" && <QuickLinks />}
+                {view === "translator" && <Translator />}
+                {view === "info" && <Info />}
                 {view === "check" && <Checklist />}
                 {view === "backup" && <Backup />}
                 {view === "favs" && <Favs />}
