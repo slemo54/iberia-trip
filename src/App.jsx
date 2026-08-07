@@ -534,7 +534,12 @@ function App() {
                 {view === "stays" && <Stays />}
                 {view === "surf" && <SurfView />}
                 {view === "map" && (
-                  <Suspense fallback={<div className="map-loading">Caricamento mappa…</div>}>
+                  <Suspense fallback={
+                    <div className="map-loading">
+                      <div className="skeleton skeleton-map" />
+                      <p>Caricamento mappa…</p>
+                    </div>
+                  }>
                     <MapView />
                   </Suspense>
                 )}

@@ -30,3 +30,9 @@ Repo: https://github.com/slemo54/iberia-trip
 1. **Mappa Leaflet dark** (CartoDB dark tiles) con tutti i pin: 3 alloggi + 4 spot surf + aeroporto Siviglia, polyline tratteggiata della rotta, lazy-loaded (chunk separato 157kB).
 2. **ETA drive** tra tappe calcolate on-device con formula haversine + 30% correzione strade + 90 km/h media. Es: Lisbona→Siviglia 4h30m, 405 km.
 3. **Backup/Export JSON** (favoriti + checklist + lang) con import e reset, accessibile dal bottom sheet "Strumenti" (icona in top-bar).
+
+## v1.4 (deploy 5) — info pratiche
+1. **Tab "Traduttore"** con 15 frasi IT→PT e IT→ES, switch inline, TTS nativo (`speechSynthesis`) per la pronuncia.
+2. **Sezione "Info"** (dal menu) con volo andata/ritorno in card grandi, numeri di emergenza (112, consolati IT, taxi), prezzi tipici agosto.
+3. **Riorganizzazione nav**: 6 tab principali (Giorno, Alloggi, Surf, Mappa, Link, Traduttore) + bottom sheet "Altro" per strumenti secondari (Info, Check, Preferiti, Backup).
+4. Bonus fix: padding-bottom aumentato (140px) per evitare sovrapposizione tabs/contenuto.
