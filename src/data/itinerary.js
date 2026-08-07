@@ -1,0 +1,182 @@
+// Itinerario Iberia 8-15 Agosto
+export const trip = {
+  meta: {
+    title: "Iberia Trip",
+    subtitle: "Algarve · Lisbona · Siviglia",
+    start: "2026-08-08",
+    end: "2026-08-15",
+  },
+  stays: [
+    {
+      id: "alvor",
+      name: "Quinta dos Arcos · Maralvor",
+      city: "Alvor, Algarve",
+      dates: "8–10 Ago",
+      coords: { lat: 37.1296, lng: -8.5917 },
+      address: "Ed. Maralvor, apt 401, 8500-033 Alvor",
+      keys: { box: "1465", parking: "15", pool: "7001" },
+      host: { name: "Dina Mirabaud", phone: "+351 935 892 077" },
+    },
+    {
+      id: "lisbona",
+      name: "Rua de Guilherme Braga 27",
+      city: "Alfama, Lisbona",
+      dates: "10–13 Ago",
+      coords: { lat: 38.7115, lng: -9.1310 },
+      address: "R. de Guilherme Braga 27, 1100-222 Lisboa",
+    },
+    {
+      id: "siviglia",
+      name: "Calle Jimios 22-24",
+      city: "Siviglia",
+      dates: "13–15 Ago",
+      coords: { lat: 37.3929, lng: -5.9936 },
+      address: "C. Jimios 22-24, 41001 Sevilla",
+    },
+  ],
+  days: [
+    {
+      id: "d1",
+      date: "2026-08-08",
+      weekday: "Sab",
+      title: "Arrivo Algarve",
+      region: "alvor",
+      summary: "Siviglia 9:45 → volo → auto → Algarve. Spiagge + Albufeira serata.",
+      blocks: [
+        { type: "transit", icon: "plane", text: "Volo arrivo Siviglia 9:45" },
+        { type: "drive", icon: "car", text: "Noleggio auto → Alvor (~2h)" },
+        { type: "beach", icon: "umbrella", text: "Praia do Canavial · Praia do Vau · Ponta da Piedade" },
+        { type: "night", icon: "moon", text: "Albufeira · The Strip movida" },
+      ],
+    },
+    {
+      id: "d2",
+      date: "2026-08-09",
+      weekday: "Dom",
+      title: "Surf & spiagge",
+      region: "alvor",
+      summary: "Surf mattina, tour spiagge pomeriggio, Lagos/Albufeira sera.",
+      blocks: [
+        { type: "surf", icon: "wave", text: "Surf a Praia do Amado o Bordeira" },
+        { type: "beach", icon: "umbrella", text: "Camilo · Dona Ana · Praia da Marinha" },
+        { type: "food", icon: "utensils", text: "Cena 100 Montaditos" },
+        { type: "night", icon: "moon", text: "Lagos / Albufeira" },
+      ],
+    },
+    {
+      id: "d3",
+      date: "2026-08-10",
+      weekday: "Lun",
+      title: "Alvor → Lisbona",
+      region: "lisbona",
+      summary: "Check-out, sosta Porto Covo, arrivo Lisbona 17:00, Alfama + Bairro Alto.",
+      blocks: [
+        { type: "transit", icon: "car", text: "Alvor → Lisbona via Porto Covo" },
+        { type: "walk", icon: "footprints", text: "Passeggiata Alfama al tramonto" },
+        { type: "food", icon: "utensils", text: "Cena Tasca do Dias" },
+        { type: "night", icon: "moon", text: "Festa Bairro Alto" },
+      ],
+    },
+    {
+      id: "d4",
+      date: "2026-08-11",
+      weekday: "Mar",
+      title: "Surf Costa de Caparica",
+      region: "lisbona",
+      summary: "Ericeira o Carcavelos / Caparica, sera Lisbona.",
+      blocks: [
+        { type: "surf", icon: "wave", text: "Surf a Ericeira o Carcavelos / Costa de Caparica" },
+        { type: "food", icon: "utensils", text: "Cena 100 Montaditos" },
+        { type: "night", icon: "moon", text: "LisboaRio" },
+      ],
+    },
+    {
+      id: "d5",
+      date: "2026-08-12",
+      weekday: "Mer",
+      title: "Lisbona city o Cabo da Roca",
+      region: "lisbona",
+      summary: "Alfama, Baixa, Chiado, Belém — oppure Cabo da Roca + birre.",
+      blocks: [
+        { type: "sight", icon: "camera", text: "Alfama · Baixa · Chiado · Belém" },
+        { type: "alt", icon: "map-pin", text: "oppure Cabo da Roca" },
+        { type: "drinks", icon: "beer", text: "Santa Catarina birre" },
+        { type: "night", icon: "moon", text: "Ministerium / Carmo Rooftop" },
+      ],
+    },
+    {
+      id: "d6",
+      date: "2026-08-13",
+      weekday: "Gio",
+      title: "Lisbona → Siviglia",
+      region: "siviglia",
+      summary: "Drive via Huelva, spiagge, arrivo Siviglia, tapas a Triana.",
+      blocks: [
+        { type: "transit", icon: "car", text: "Lisbona → Siviglia via Huelva" },
+        { type: "beach", icon: "umbrella", text: "Playa de los Enebrales · Punta Umbría" },
+        { type: "food", icon: "utensils", text: "Tapas a Vuela / El Librero" },
+        { type: "night", icon: "moon", text: "Calle Betis, Triana" },
+      ],
+    },
+    {
+      id: "d7",
+      date: "2026-08-14",
+      weekday: "Ven",
+      title: "Siviglia monumenti",
+      region: "siviglia",
+      summary: "Alcázar, Cattedrale, Triana, Plaza de España.",
+      blocks: [
+        { type: "sight", icon: "camera", text: "Alcázar · Cattedrale · Archivo de Indias" },
+        { type: "walk", icon: "footprints", text: "Triana · Plaza de España · Parco María Luisa" },
+        { type: "food", icon: "utensils", text: "Tortilla & tapas" },
+        { type: "night", icon: "moon", text: "Alameda de Hércules" },
+      ],
+    },
+    {
+      id: "d8",
+      date: "2026-08-15",
+      weekday: "Sab",
+      title: "Rientro",
+      region: "siviglia",
+      summary: "Check-out 8:00 → aeroporto → volo 10:25.",
+      blocks: [
+        { type: "transit", icon: "car", text: "Check-out 8:00 → aeroporto" },
+        { type: "transit", icon: "plane", text: "Volo rientro 10:25" },
+      ],
+    },
+  ],
+};
+
+// Link rapidi: indirizzi pre-mappati per tap-diretto dal telefono
+export const quickLinks = {
+  alvor: {
+    maps: "https://maps.google.com/?q=Quinta+dos+Arcos+Maralvor+Alvor",
+    uber: "",
+    taxi: "",
+    host: "tel:+351935892077",
+  },
+  lisbona: {
+    maps: "https://maps.google.com/?q=Rua+de+Guilherme+Braga+27+Lisboa",
+  },
+  siviglia: {
+    maps: "https://maps.google.com/?q=Calle+Jimios+22+Sevilla",
+    airport: "https://maps.google.com/?q=Aeropuerto+de+Sevilla",
+  },
+  surfing: {
+    amado: "https://maps.google.com/?q=Praia+do+Amado",
+    carcavelos: "https://maps.google.com/?q=Praia+de+Carcavelos",
+    caparica: "https://maps.google.com/?q=Costa+de+Caparica",
+  },
+  nightlife: {
+    alb_strip: "https://maps.google.com/?q=The+Strip+Albufeira",
+    bairro_alto: "https://maps.google.com/?q=Bairro+Alto+Lisboa",
+    ministerium: "https://maps.google.com/?q=Ministerium+Club+Lisboa",
+    calle_betis: "https://maps.google.com/?q=Calle+Betis+Triana+Sevilla",
+  },
+  food: {
+    montaditos: "https://100montaditos.com/",
+    tasca_dias: "https://maps.google.com/?q=Tasca+do+Dias+Lisboa",
+    vuela: "https://maps.google.com/?q=Tapas+Vuela+Sevilla",
+    el_librero: "https://maps.google.com/?q=El+Librero+Sevilla",
+  },
+};
